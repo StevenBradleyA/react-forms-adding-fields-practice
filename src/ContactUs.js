@@ -1,20 +1,33 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function ContactUs(props) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [comments, setComments] = useState("");
   const [phoneType, setPhoneType] = useState("");
+  const [comments, setComments] = useState("");
+  const [validationErrors, setValidationErrors] = useState([]);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+
+  useEffect(() => {
+    const errors = [];
+    if (!name.length) errors.push("Please enter your Name");
+    if (!email.includes("@")) errors.push("Please provide a valid Email");
+    setValidationErrors(errors);
+  }, [name, email]);
 
   const onSubmit = (e) => {
     e.preventDefault();
+
+    setHasSubmitted(true);
+    if (validationErrors.length) return alert(`Cannot Submit`);
+
     const contactUsInformation = {
       name,
       email,
       phone,
-      comments,
       phoneType,
+      comments,
       submittedOn: new Date()
     };
 
@@ -22,13 +35,25 @@ function ContactUs(props) {
     setName("");
     setEmail("");
     setPhone("");
-    setComments("");
     setPhoneType("");
+    setComments("");
+    setValidationErrors([]);
+    setHasSubmitted(false);
   };
 
   return (
     <div>
       <h2>Contact Us</h2>
+      {hasSubmitted && validationErrors.length > 0 && (
+        <div>
+          The following errors were found:
+          <ul>
+            {validationErrors.map((error) => (
+              <li key={error}>{error}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       <form onSubmit={onSubmit}>
         <div>
           <label htmlFor="name">Name:</label>
@@ -64,9 +89,9 @@ function ContactUs(props) {
             <option value="" disabled>
               Select a phone type...
             </option>
-            <option value="Home">Home</option>
-            <option value="Work">Work</option>
-            <option value="Mobile">Mobile</option>
+            <option>Home</option>
+            <option>Work</option>
+            <option>Mobile</option>
           </select>
         </div>
         <div>
